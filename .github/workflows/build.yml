@@ -1,0 +1,31 @@
+name: Android Cloud Factory
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📦 Download your code
+      uses: actions/checkout@v4
+
+    - name: ☕ Setup Java Engine
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: 🐘 Setup Gradle Builder
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: 🔨 Compile Android APK
+      run: gradle assembleDebug
+
+    - name: 🚀 Upload APK for Download
+      uses: actions/upload-artifact@v4
+      with:
+        name: Syrja-Node-App
+        path: app/build/outputs/apk/debug/*.apk
