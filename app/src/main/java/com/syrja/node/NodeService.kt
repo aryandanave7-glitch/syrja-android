@@ -14,7 +14,7 @@ class NodeService : Service() {
 
     private var socket: Socket? = null
         private val desktopIp = "192.168.0.147" // FIXME: Replace this with your actual Laptop IP!
-            private val port = 8080
+            private val port = 8889
 
             override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
                 createNotificationChannel()
@@ -35,20 +35,24 @@ class NodeService : Service() {
 
             private fun connectToDesktop() {
                 thread {
-                    try {
-                        Log.d("Syrja", "Connecting to $desktopIp:$port...")
-                        socket = Socket(desktopIp, port)
-                        val output: OutputStream = socket!!.getOutputStream()
+                    var connected = false
+                    while (!connected) {
+                        try {
+                            Log.d("Syrja", "Attempting connection to $desktopIp:$port...")
+                            socket = Socket(desktopIp, port)
+                            val output: OutputStream = socket!!.getOutputStream()
 
-                        // Send a "Hello" JSON packet
-                        val helloJson = """{"type": "connection", "device": "${Build.MODEL}", "status": "online"}"""
-                        output.write(helloJson.toByteArray())
-                        output.flush()
+                            // The handshake message
+                            val helloJson = """{"type": "connection", "device": "${Build.MODEL}", "status": "online"}"""
+                            output.write(helloJson.toByteArray())
+                            output.flush()
 
-                        Log.d("Syrja", "Handshake sent successfully!")
-                    } catch (e: Exception) {
-                        Log.e("Syrja", "Connection failed: ${e.message}")
-                        // In the next step, we'll add a "Retry" loop here
+                            Log.d("Syrja", "CONNECTED! Handshake sent.")
+                            connected = true // Break the loop
+                        } catch (e: Exception) {
+                            Log.e("Syrja", "Connection failed: ${e.message}. Retrying in 5 seconds...")
+                            Thread.sleep(5000) // Wait 5 seconds before trying again
+                        }
                     }
                 }
             }
