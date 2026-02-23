@@ -19,7 +19,9 @@ jobs:
         java-version: '17'
 
     - name: 🐘 Setup Gradle Builder
-      uses: gradle/actions/setup-gradle@v3
+      uses: gradle/gradle-build-action@v2
+      with:
+        gradle-version: 8.5 # Force Gradle 8.5 to avoid the 9.3 mutation bugs
 
     - name: 🔨 Compile Android APK
       run: gradle assembleDebug
